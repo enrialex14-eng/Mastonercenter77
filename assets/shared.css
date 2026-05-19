@@ -1,0 +1,56 @@
+/* ══════════════════════════════════════════
+   MASTONER CENTER — PALETA OFICIAL
+   Única fuente de verdad para colores.
+   Modifica aquí y se actualiza en ambas páginas.
+   Para dark mode: editar el bloque [data-theme="dark"].
+══════════════════════════════════════════ */
+
+/* ── MODO CLARO (default) ── */
+:root {
+  /* Azules (orden: claro → profundo) */
+  --sky:        #7DD3FC;   /* Azul cielo principal */
+  --sky-mid:    #38BDF8;   /* Azul cielo intenso — acentos y CTAs */
+  --sky-deep:   #0EA5E9;   /* Azul profundo — hover y detalles */
+  --sky-blue:   #0284C7;   /* Azul medio */
+  --sky-dark:   #0369A1;   /* Azul oscuro */
+
+  /* Fondos */
+  --bg-light:   #FFFFFF;   /* Fondo principal / tarjetas */
+  --bg-section: #F8FAFC;   /* Secciones secundarias */
+  --bg-img:     #EFF8FF;   /* Fondo de imágenes */
+  --sky-light:  #E0F2FE;   /* Tono azul muy claro */
+
+  /* Textos */
+  --text-dark:  #1E293B;   /* Texto principal */
+  --text-mid:   #475569;   /* Texto secundario */
+  --text-muted: #94A3B8;   /* Texto tenue */
+
+  /* Bordes */
+  --border-base:  #E2E8F0;
+  --border-hover: #BAE6FD;
+}
+
+/* ── MODO OSCURO (navy, no negro) ── */
+html[data-theme="dark"] {
+  /* Fondos navy */
+  --bg-light:   #1E293B;   /* Superficies / tarjetas — slate-800 */
+  --bg-section: #0F172A;   /* Fondo de página — slate-900 */
+  --bg-img:     #1E293B;   /* Fondo de imágenes */
+  --sky-light:  rgba(56,189,248,.12);
+
+  /* Textos */
+  --text-dark:  #E2E8F0;   /* Texto principal — slate-200 */
+  --text-mid:   #94A3B8;   /* Texto secundario — slate-400 */
+  --text-muted: #64748B;   /* Texto tenue — slate-500 */
+
+  /* Bordes */
+  --border-base:  #334155; /* slate-700 */
+  --border-hover: #475569; /* slate-600 */
+
+  /* Azules: igual en ambos modos */
+  --sky:        #7DD3FC;
+  --sky-mid:    #38BDF8;
+  --sky-deep:   #0EA5E9;
+  --sky-blue:   #0284C7;
+  --sky-dark:   #0369A1;
+}

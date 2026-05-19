@@ -1,0 +1,33 @@
+IMÁGENES PENDIENTES — Mastoner Center
+Generado: 2026-05-18
+══════════════════════════════════════════
+
+SIN IMAGEN ENCONTRADA (1)
+──────────────────────────────────────────
+• Canon MAXIFY MB3010  (Canon/Canon M3010.jpg)
+  Motivo: Modelo no encontrado en catálogos activos de Canon Latinoamérica.
+          Posiblemente discontinuado y reemplazado por el MAXIFY GX3010.
+  Acción: Verificar si este modelo sigue en stock. Si fue reemplazado por GX3010,
+          actualizar el catálogo. Imagen alternativa buscable en:
+          https://www.cla.canon.com o en Canon México/Colombia.
+
+IMÁGENES EN BAJA RESOLUCIÓN (requieren reemplazo manual)
+──────────────────────────────────────────
+• HP LaserJet M111w  (HP/HP 111W.jpg) — 325×155 px
+  Motivo: Todas las fuentes disponibles (stech.ink, amaget.com) solo tienen
+          esta versión de baja resolución. Es la imagen nativa del producto.
+  Acción: Descargar manualmente desde hp.com o HP media kit oficial.
+          URL de referencia: https://www.hp.com/sa-en/products/printers/product-details/34443751
+
+IMÁGENES EN RESOLUCIÓN LANDSCAPE (< 500px de alto, nativas del fabricante)
+──────────────────────────────────────────
+Nota: Estas imágenes son el tamaño máximo disponible oficialmente.
+      Son utilizables en el catálogo aunque no cumplan el criterio estricto de 500×500.
+
+• Epson L1250        — 550×310 px  (fuente: mediaserver.goepson.com)
+• Epson L3250        — 550×310 px  (fuente: mediaserver.goepson.com)
+• Epson M2170        — 690×460 px  (fuente: mediaserver.goepson.com)
+• Epson Sure Color M170 — 550×310 px (fuente: WorkForce M205 en epson.com.ve)
+  IMPORTANTE: El modelo "Sure Color M170" no aparece en catálogos Epson LATAM.
+  Se usó imagen de WorkForce M205 como referencia. Verificar con proveedor.
+• HP LaserJet M137w  — 600×450 px  (fuente: lancetrend.com/wp-content)
