@@ -110,7 +110,7 @@
       '<div class="ce-hero-inner">',
         '<a href="index.html" class="ce-hero-logo-link">',
           '<div class="ce-hero-logo">',
-            '<img src="assets/LOGO MASTONER.jpeg" alt="MasToner Center 77" onerror="this.style.display=\'none\'">',
+            '<img src="assets/LOGO MASTONER.jpeg" alt="mastonercenter77" onerror="this.style.display=\'none\'">',
           '</div>',
         '</a>',
         '<div class="ce-hero-copy">',
@@ -182,13 +182,14 @@
       secEl.id = 'ce-sec-' + sec.id;
 
       var iconText = abbr(sec.nombre);
-      var header = '<div class="ce-section-header">' +
+      var header = '<div class="ce-section-header" role="button" tabindex="0" aria-expanded="false">' +
         '<div class="ce-section-badge">' +
           '<span class="ce-section-icon">' + iconText + '</span>' +
           sec.nombre +
         '</div>' +
         '<div class="ce-section-line"></div>' +
-        '<span class="ce-section-count">' + sec.productos.length + ' productos</span>' +
+        '<span class="ce-section-count">' + sec.productos.length + ' producto' + (sec.productos.length !== 1 ? 's' : '') + '</span>' +
+        '<svg class="ce-section-chevron" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
       '</div>';
 
       var cards = sec.productos.map(function(p, i) {
@@ -225,7 +226,7 @@
         '</div>';
       }).join('');
 
-      var grid = '<div class="ce-grid" id="ce-grid-' + sec.id + '">' + cards + '</div>';
+      var grid = '<div class="ce-ac-wrap"><div class="ce-ac-inner"><div class="ce-grid" id="ce-grid-' + sec.id + '">' + cards + '</div></div></div>';
       var divider = si < D.sections.length - 1 ? '<div class="ce-divider"></div>' : '';
 
       secEl.innerHTML = header + grid + divider;
@@ -243,9 +244,10 @@
     el.className = 'ce-empty'; el.id = 'ce-empty'; el.style.display = 'none';
     el.innerHTML = [
       '<div class="ce-empty-icon">' + SVG_EMPTY + '</div>',
-      '<p class="ce-empty-title">Sin resultados</p>',
-      '<p class="ce-empty-desc">No encontramos productos para &ldquo;<span class="ce-empty-q" id="ce-empty-q"></span>&rdquo;</p>',
+      '<p class="ce-empty-title">Sin resultados en este catálogo</p>',
+      '<p class="ce-empty-desc">No encontramos &ldquo;<span class="ce-empty-q" id="ce-empty-q"></span>&rdquo; aquí.</p>',
       '<button class="ce-empty-btn" id="ce-empty-btn">Limpiar búsqueda</button>',
+      '<a class="ce-empty-global" id="ce-empty-global" href="busqueda.html">Buscar en todos los catálogos →</a>',
     ].join('');
     return el;
   }
@@ -260,6 +262,7 @@
     overlay.className = 'ce-overlay'; overlay.id = 'ce-overlay';
     overlay.innerHTML = [
       '<div class="ce-modal" id="ce-modal">',
+        '<div class="ce-modal-handle" aria-hidden="true"></div>',
         '<button class="ce-modal-close" id="ce-modal-close" aria-label="Cerrar">✕</button>',
         '<div class="ce-modal-media">',
           '<div class="ce-modal-ph" id="ce-modal-ph">',
@@ -268,7 +271,7 @@
           '</div>',
           '<img class="ce-modal-img" id="ce-modal-img" style="display:none" alt="">',
         '</div>',
-        '<div class="ce-modal-info">',
+        '<div class="ce-modal-info" id="ce-modal-info">',
           '<span class="ce-modal-codigo" id="ce-modal-codigo"></span>',
           '<span class="ce-modal-marca" id="ce-modal-marca"></span>',
           '<h2 class="ce-modal-nombre" id="ce-modal-nombre"></h2>',
@@ -296,7 +299,7 @@
     footer.innerHTML = [
       '<div class="ce-footer-inner">',
         '<div>',
-          '<div class="ce-footer-logo">MasToner<span>Center 77</span></div>',
+          '<div class="ce-footer-logo">mastoner<span>center77</span></div>',
           '<div class="ce-footer-tagline">Tecnología · Soluciones de Impresión · Calidad Garantizada</div>',
         '</div>',
         '<div>',
@@ -339,6 +342,8 @@
   /* ══════════════════════════════════════════
      FILTER LOGIC
   ══════════════════════════════════════════ */
+  function isMobile() { return window.innerWidth <= 768; }
+
   function applyFilter() {
     var q = _state.query.trim().toLowerCase();
     var sec = _state.activeSection;
@@ -353,6 +358,20 @@
       if (show) total++;
     });
 
+    /* Search mode: expand all sections on mobile so results are visible */
+    if (isMobile()) {
+      if (q !== '') {
+        document.body.classList.add('ce-searching');
+        document.querySelectorAll('.ce-section').forEach(function(s) {
+          s.classList.add('ce-open');
+          var hdr = s.querySelector('.ce-section-header');
+          if (hdr) hdr.setAttribute('aria-expanded', 'true');
+        });
+      } else {
+        document.body.classList.remove('ce-searching');
+      }
+    }
+
     /* Hide/show section groups */
     document.querySelectorAll('.ce-section').forEach(function(secEl) {
       var id = secEl.id.replace('ce-sec-', '');
@@ -365,7 +384,9 @@
       var hide = vis === 0 && q !== '';
       var hdr = secEl.querySelector('.ce-section-header');
       if (hdr) hdr.style.display = hide ? 'none' : '';
-      var div = grid.nextElementSibling;
+      /* Divider is now after .ce-ac-wrap — walk up from grid to find it */
+      var acWrap = grid.closest('.ce-ac-wrap');
+      var div = acWrap ? acWrap.nextElementSibling : null;
       if (div && div.classList.contains('ce-divider')) div.style.display = hide ? 'none' : '';
     });
 
@@ -440,12 +461,25 @@
     }
 
     document.getElementById('ce-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
+
+    /* Scroll lock compatible con iOS y Android:
+       position:fixed preserva la posición y permite scroll interno del modal */
+    var scrollY = window.scrollY || window.pageYOffset;
+    document.body.style.position = 'fixed';
+    document.body.style.top      = '-' + scrollY + 'px';
+    document.body.style.width    = '100%';
+    document.body.dataset.ceScrollY = scrollY;
   }
 
   function closeModal() {
     document.getElementById('ce-overlay').classList.remove('open');
-    document.body.style.overflow = '';
+    /* Restaurar scroll exacto */
+    var savedY = parseInt(document.body.dataset.ceScrollY || 0);
+    document.body.style.position = '';
+    document.body.style.top      = '';
+    document.body.style.width    = '';
+    delete document.body.dataset.ceScrollY;
+    window.scrollTo(0, savedY);
     _currentProduct = null;
   }
 
@@ -459,12 +493,47 @@
     var emptyBtn = document.getElementById('ce-empty-btn');
 
     function clearSearch() {
-      input.value = ''; _state.query = ''; applyFilter(); input.focus();
+      input.value = ''; _state.query = ''; applyFilter();
+      /* On mobile: remove search mode — sections go back to accordion state */
+      if (isMobile()) {
+        document.body.classList.remove('ce-searching');
+        /* Collapse all except first */
+        var secs = document.querySelectorAll('.ce-section');
+        secs.forEach(function(s, i) {
+          if (i > 0) {
+            s.classList.remove('ce-open');
+            var h = s.querySelector('.ce-section-header');
+            if (h) h.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+      var gl = document.getElementById('ce-empty-global');
+      if (gl) gl.href = 'busqueda.html';
+      input.focus();
     }
-    input.addEventListener('input', function() { _state.query = this.value; applyFilter(); });
+    input.addEventListener('input', function() {
+      _state.query = this.value; applyFilter();
+      var gl = document.getElementById('ce-empty-global');
+      if (gl) gl.href = 'busqueda.html' + (this.value.trim() ? '?q=' + encodeURIComponent(this.value.trim()) : '');
+    });
     input.addEventListener('keydown', function(e) { if (e.key === 'Escape') clearSearch(); });
     clearBtn.addEventListener('click', clearSearch);
     if (emptyBtn) emptyBtn.addEventListener('click', clearSearch);
+
+    /* Mobile accordion — section header toggles */
+    document.querySelectorAll('.ce-section-header').forEach(function(hdr) {
+      hdr.addEventListener('click', function() {
+        if (!isMobile()) return;
+        var secEl = this.closest('.ce-section');
+        if (!secEl) return;
+        var willOpen = !secEl.classList.contains('ce-open');
+        secEl.classList.toggle('ce-open', willOpen);
+        this.setAttribute('aria-expanded', String(willOpen));
+      });
+      hdr.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); }
+      });
+    });
 
     /* Filter chips */
     var filtersEl = document.getElementById('ce-filters');
@@ -476,6 +545,18 @@
         chip.classList.add('active');
         _state.activeSection = chip.dataset.section;
         applyFilter();
+        /* On mobile: expand the target section when a chip is selected */
+        if (isMobile()) {
+          var chipSec = chip.dataset.section;
+          if (chipSec !== 'todos') {
+            var target = document.getElementById('ce-sec-' + chipSec);
+            if (target && !target.classList.contains('ce-open')) {
+              target.classList.add('ce-open');
+              var th = target.querySelector('.ce-section-header');
+              if (th) th.setAttribute('aria-expanded', 'true');
+            }
+          }
+        }
       });
     }
 
@@ -505,6 +586,15 @@
       if (e.key === 'Escape') closeModal();
     });
 
+    /* iOS / Android — prevenir que el touchmove del overlay llegue al body bloqueado.
+       Si el toque es dentro del panel info (scrollable), no llamar preventDefault()
+       para que iOS propague el evento al scroll interno en lugar de ignorarlo. */
+    var infoPane = document.getElementById('ce-modal-info');
+    document.getElementById('ce-overlay').addEventListener('touchmove', function(e) {
+      if (infoPane && infoPane.contains(e.target)) return;
+      e.preventDefault();
+    }, { passive: false });
+
     /* Zoom imagen modal */
     document.getElementById('ce-modal-img').addEventListener('click', function() {
       if (this.src && this.style.display !== 'none') {
@@ -533,6 +623,44 @@
         (p.codigo ? ' (Código: ' + p.codigo + ')' : '') + '. ¡Gracias!';
       var wa = (typeof SITE !== 'undefined') ? SITE.whatsapp : '584144036573';
       window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(txt), '_blank');
+    });
+  }
+
+  /* ══════════════════════════════════════════
+     SKELETON LOADING — usa clase en contenedor
+     Las imágenes son siempre visibles (opacity:1).
+     El skeleton es el background del .ce-card-media.
+  ══════════════════════════════════════════ */
+  function initSkeletonLoading() {
+    document.querySelectorAll('.ce-card-media').forEach(function(wrap) {
+      var img = wrap.querySelector('img');
+      var hasPlaceholder = wrap.querySelector('.ce-card-placeholder') &&
+                           !wrap.querySelector('.ce-card-placeholder[style*="none"]');
+
+      if (!img || hasPlaceholder) {
+        /* Sin imagen real → no hay skeleton */
+        return;
+      }
+
+      /* Añadir skeleton al contenedor */
+      wrap.classList.add('ce-skeleton');
+
+      function removeSkeleton() {
+        wrap.classList.remove('ce-skeleton');
+        /* Restaurar background original */
+        wrap.style.background = '';
+        wrap.style.animation  = '';
+      }
+
+      if (img.complete && img.naturalWidth > 0) {
+        removeSkeleton();
+      } else if (img.complete) {
+        /* Imagen rota → quitar skeleton (el placeholder ya se muestra) */
+        removeSkeleton();
+      } else {
+        img.addEventListener('load',  removeSkeleton);
+        img.addEventListener('error', removeSkeleton);
+      }
     });
   }
 
@@ -588,9 +716,36 @@
     fillFooter();
     wireEvents(D);
     initAnimations();
+    initSkeletonLoading();
 
-    /* Preconstruir caché de búsqueda */
-    document.querySelectorAll('.ce-card').forEach(function() {});
+    /* Mobile: auto-open first section */
+    if (isMobile()) {
+      var firstSec = document.querySelector('.ce-section');
+      if (firstSec) {
+        firstSec.classList.add('ce-open');
+        var fHdr = firstSec.querySelector('.ce-section-header');
+        if (fHdr) fHdr.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    /* URL ?highlight=productId — abrir modal directo desde búsqueda global */
+    try {
+      var urlParams = new URLSearchParams(window.location.search);
+      var hId = urlParams.get('highlight');
+      if (hId) {
+        var hProduct = null;
+        (D.sections || []).forEach(function(sec) {
+          (sec.productos || []).forEach(function(p) {
+            if (String(p.codigo) === String(hId)) hProduct = p;
+          });
+        });
+        if (hProduct) {
+          var hCard = document.querySelector('.ce-card[data-id="' + hId + '"]');
+          if (hCard) hCard.scrollIntoView({ block: 'center' });
+          setTimeout(function() { openModal(hProduct); }, 200);
+        }
+      }
+    } catch(e) {}
   }
 
   if (document.readyState === 'loading') {

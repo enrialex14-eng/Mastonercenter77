@@ -4,7 +4,7 @@ window.CATALOG_DATA = {
   id: 'sin-clasificar',
   nombre: 'Papelería & Accesorios',
   eyebrow: 'Catálogo Completo 2025',
-  descripcion: 'Artículos de papelería, librería, morrales escolares/deportivos y accesorios varios.',
+  descripcion: 'Artículos de papelería y librería. Los morrales y bolsos están en el catálogo Morrales.',
   gradientFrom: '#1F2937',
   gradientMid:  '#374151',
   gradientTo:   '#6B7280',

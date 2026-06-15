@@ -259,6 +259,19 @@ html { scroll-behavior: smooth; }
 .ce-section-line { flex: 1; height: 1px; background: var(--border-base, #E2E8F0); }
 .ce-section-count { font-size: .72rem; font-weight: 600; color: var(--text-muted, #94A3B8); letter-spacing: 1.5px; text-transform: uppercase; }
 
+/* Chevron: hidden on desktop, shown on mobile */
+.ce-section-chevron {
+  display: none;
+  width: 18px; height: 18px; flex-shrink: 0;
+  color: var(--text-muted, #94A3B8);
+  transition: transform .3s cubic-bezier(.4,0,.2,1), color .2s;
+}
+
+/* ── ACCORDION WRAPPER ── */
+/* Desktop: always visible */
+.ce-ac-wrap { }
+.ce-ac-inner { }
+
 /* ── GRID ── */
 .ce-grid {
   display: grid;
@@ -280,8 +293,9 @@ html { scroll-behavior: smooth; }
 .ce-card {
   background: var(--bg-light, #fff);
   border-radius: var(--ce-r);
-  border: 1.5px solid var(--border-base, #E2E8F0);
-  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  /* Modo claro: borde + sombra visibles para separar cards del fondo */
+  border: 1.5px solid #CBD5E1;
+  box-shadow: 0 2px 10px rgba(0,0,0,.10), 0 1px 3px rgba(0,0,0,.06);
   overflow: hidden; cursor: pointer;
   transition: transform var(--ce-transition), box-shadow var(--ce-transition), border-color var(--ce-transition);
   opacity: 0; transform: translateY(24px);
@@ -289,16 +303,23 @@ html { scroll-behavior: smooth; }
 .ce-card.visible { opacity: 1; transform: translateY(0); }
 .ce-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 48px rgba(0,0,0,.1), 0 4px 16px rgba(0,0,0,.06);
+  box-shadow: 0 16px 48px rgba(0,0,0,.14), 0 4px 16px rgba(0,0,0,.08);
   border-color: var(--cat-accent);
 }
 
 /* Card media */
 .ce-card-media {
   aspect-ratio: 1; position: relative;
-  background: var(--bg-section, #F8FAFC);
+  background: #F1F5F9;   /* ligeramente más oscuro que el fondo blanco */
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
+}
+/* Dark mode card media (original) */
+html[data-theme="dark"] .ce-card-media { background: #0F172A; }
+/* Dark mode cards: borde suave */
+html[data-theme="dark"] .ce-card {
+  border-color: #334155;
+  box-shadow: none;
 }
 .ce-card-img { width: 100%; height: 100%; object-fit: contain; padding: 16px; }
 .ce-card-placeholder {
@@ -369,6 +390,16 @@ html { scroll-behavior: smooth; }
   cursor: pointer; transition: background .2s, border-color .2s, color .2s;
 }
 .ce-empty-btn:hover { background: var(--cat-accent); border-color: var(--cat-accent); color: #fff; }
+.ce-empty-global {
+  display: inline-flex; align-items: center;
+  margin-top: 14px; padding: 8px 18px; border-radius: 50px;
+  font-size: .83rem; font-weight: 600; color: var(--cat-accent);
+  border: 1.5px solid var(--cat-accent); text-decoration: none;
+  transition: background .2s, color .2s;
+}
+.ce-empty-global:hover { background: var(--cat-accent); color: #fff; }
+html[data-theme="dark"] .ce-empty-global { border-color: #38BDF8; color: #38BDF8; }
+html[data-theme="dark"] .ce-empty-global:hover { background: #38BDF8; color: #0F172A; }
 
 /* ══════════════════════════════════════════
    MODAL
@@ -388,7 +419,8 @@ html { scroll-behavior: smooth; }
   border: 1px solid var(--border-base, #E2E8F0);
   box-shadow: 0 32px 80px rgba(0,0,0,.2);
   display: grid; grid-template-columns: 1fr 1.4fr;
-  max-width: 780px; width: 100%; max-height: 90vh; overflow: hidden;
+  max-width: 780px; width: 100%; max-height: 90vh;
+  overflow: hidden;   /* el scroll interno lo maneja .ce-modal-info */
   position: relative;
 }
 .ce-modal-close {
@@ -419,8 +451,13 @@ html { scroll-behavior: smooth; }
 .ce-modal-ph span { font-size: .78rem; color: var(--text-muted, #94A3B8); font-weight: 500; }
 .ce-modal-img { max-width: 100%; max-height: 200px; object-fit: contain; }
 
-/* Modal info pane */
-.ce-modal-info { padding: 32px 28px 28px; overflow-y: auto; }
+/* Modal info pane — scrollable siempre */
+.ce-modal-info {
+  padding: 32px 28px 28px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* iOS momentum scroll */
+  overscroll-behavior: contain;      /* evita que el scroll se propague al body */
+}
 .ce-modal-codigo {
   display: inline-block; font-size: .65rem; font-weight: 600;
   letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted, #94A3B8);
@@ -525,6 +562,102 @@ html[data-theme="dark"] .ce-modal { transition: background-color .3s ease, borde
   .ce-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .ce-footer-inner { grid-template-columns: 1fr 1fr; gap: 28px; }
 }
+/* ══════════════════════════════════════════
+   MOBILE ACCORDION (≤768px)
+   El acordeón se activa en teléfonos y tablets.
+   En desktop todas las secciones permanecen abiertas.
+══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Hacer el header interactive */
+  .ce-section-header {
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 0 -14px 12px;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    transition: background .18s ease;
+    gap: 12px;
+  }
+  .ce-section-header:hover,
+  .ce-section-header:focus-visible {
+    background: rgba(14,165,233,.06);
+    outline: none;
+  }
+  .ce-section-header:active {
+    background: rgba(14,165,233,.1);
+  }
+  html[data-theme="dark"] .ce-section-header:hover,
+  html[data-theme="dark"] .ce-section-header:focus-visible {
+    background: rgba(56,189,248,.07);
+  }
+  html[data-theme="dark"] .ce-section-header:active {
+    background: rgba(56,189,248,.12);
+  }
+
+  /* Mostrar chevron en móvil */
+  .ce-section-chevron { display: block; }
+
+  /* Rotar chevron cuando la sección está abierta */
+  .ce-section.ce-open .ce-section-chevron {
+    transform: rotate(180deg);
+    color: var(--cat-accent);
+  }
+
+  /* Cambiar color del badge cuando está abierto */
+  .ce-section.ce-open .ce-section-header .ce-section-badge {
+    background: var(--cat-accent);
+    color: #fff;
+  }
+  .ce-section.ce-open .ce-section-header .ce-section-icon {
+    background: rgba(255,255,255,.25);
+  }
+
+  /* ── ACORDEÓN — transición con CSS grid rows ── */
+  .ce-ac-wrap {
+    display: grid;
+    grid-template-rows: 0fr;          /* colapsado por defecto */
+    transition: grid-template-rows .38s cubic-bezier(.4,0,.2,1);
+  }
+  .ce-section.ce-open .ce-ac-wrap {
+    grid-template-rows: 1fr;          /* expandido */
+  }
+  /* Modo búsqueda: expandir todo sin animación */
+  body.ce-searching .ce-ac-wrap {
+    grid-template-rows: 1fr !important;
+  }
+
+  /* Inner: overflow:hidden durante animación, visible cuando está abierto */
+  .ce-ac-inner {
+    overflow: hidden;
+    min-height: 0;
+    /* Sin delay en el cierre: overflow:hidden entra de inmediato */
+  }
+  .ce-section.ce-open .ce-ac-inner {
+    /* Delay solo en apertura: espera a que termine la animación (0.38s) */
+    overflow: visible;
+    transition: overflow 0s .38s;
+  }
+
+  /* Grid mobile: 2 columnas, mejor aprovechamiento del espacio */
+  .ce-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 0;
+    padding: 12px 0 20px;  /* top breathing room + bottom spacing */
+  }
+
+  /* Ocultar la línea separadora cuando la sección está colapsada */
+  .ce-section:not(.ce-open) .ce-divider { opacity: 0; margin-bottom: 16px; }
+  .ce-section.ce-open .ce-divider { margin-bottom: 28px; }
+
+  /* Content padding más ajustado */
+  .ce-content { padding: 24px 16px 56px; }
+
+  /* Section header: quitar margin-bottom normal ya que lo maneja el acordeón */
+  .ce-section-header { margin-bottom: 0; }
+}
+
 @media (max-width: 600px) {
   .ce-hero { padding: 0 20px; }
   .ce-hero-inner { padding: 80px 0 32px; }
@@ -532,19 +665,163 @@ html[data-theme="dark"] .ce-modal { transition: background-color .3s ease, borde
   .ce-hero-logo { width: 80px; height: 80px; border-radius: 14px; }
   .ce-back { top: 12px; left: 20px; font-size: .82rem; padding: 8px 14px; }
   .ce-theme-btn { top: 12px; right: 20px; }
-  .ce-search-outer, .ce-filters-wrap { padding: 10px 20px; }
+  .ce-search-outer, .ce-filters-wrap { padding: 10px 16px; }
   .ce-search-badge { display: none; }
-  .ce-grid { grid-template-columns: 1fr; }
-  .ce-content { padding: 40px 20px 60px; }
-  .ce-modal { grid-template-columns: 1fr; max-height: 95vh; }
-  .ce-modal-media { min-height: 180px; padding: 24px; }
-  .ce-modal-info { padding: 20px 18px 18px; }
-  .ce-modal-nombre { font-size: 1.3rem; }
+  .ce-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .ce-content { padding: 20px 16px 56px; }
+  /* ── MODAL MOBILE: Bottom Sheet ──
+     overflow:visible en .ce-modal es intencional:
+     iOS Safari bloquea el scroll interno cuando el padre tiene overflow:hidden
+     dentro de un contexto position:fixed anidado. */
+  .ce-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .ce-modal {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+    max-height: 92dvh;     /* dvh = dynamic viewport height (iOS 15.4+) */
+    height: auto;
+    overflow: visible;     /* No crear BFC — deja que iOS propague el scroll interno */
+    border-radius: 24px 24px 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+  .ce-modal-handle {
+    width: 36px; height: 4px;
+    background: rgba(0,0,0,.13);
+    border-radius: 2px;
+    margin: 10px auto 2px;
+    flex-shrink: 0;
+  }
+  html[data-theme="dark"] .ce-modal-handle { background: rgba(255,255,255,.2); }
+  .ce-modal-close { top: 8px; right: 12px; }
+  .ce-modal-media {
+    min-height: 160px;
+    max-height: 200px;
+    flex-shrink: 0;
+    padding: 12px 20px 16px;
+    border-radius: 24px 24px 0 0; /* Clip propio — sin depender del overflow del padre */
+    overflow: hidden;
+  }
+  .ce-modal-info {
+    flex: 1;
+    min-height: 0;
+    overflow-y: scroll;              /* scroll (no auto) — más confiable en iOS */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;             /* Habilita gestos verticales en iOS y Android */
+    padding: 20px 20px 40px;
+  }
+  .ce-modal-nombre { font-size: 1.25rem; }
+  /* Animación deslizar desde abajo */
+  .ce-overlay.open .ce-modal {
+    animation: ce-modal-slide-up .32s cubic-bezier(.34,1.04,.64,1) forwards;
+  }
   .ce-footer { padding: 40px 20px 28px; }
   .ce-footer-inner { grid-template-columns: 1fr; gap: 24px; }
 }
 @media (max-width: 400px) {
-  .ce-grid { gap: 12px; }
+  .ce-grid { gap: 8px; }
+  .ce-content { padding: 16px 12px 48px; }
+  .ce-section-header { padding: 10px 12px; margin: 0 -12px 0; }
+}
+
+/* ══════════════════════════════════════════
+   SKELETON LOADING (correcto)
+   Usa background animado en el contenedor,
+   NO manipula opacity de imágenes.
+══════════════════════════════════════════ */
+@keyframes ce-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* El shimmer vive como background del contenedor */
+.ce-card-media.ce-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: ce-shimmer 1.6s ease-in-out infinite;
+}
+html[data-theme="dark"] .ce-card-media.ce-skeleton {
+  background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
+  background-size: 200% 100%;
+}
+/* Imagen carga OK → el JS quita la clase ce-skeleton y la img ya se ve */
+.ce-card-media img {
+  display: block;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  padding: 16px;
+  opacity: 1;                  /* siempre visible — el skeleton es el fondo */
+  transition: transform .38s cubic-bezier(.4,0,.2,1);
+  transform: scale(1);
+  position: relative;
+  z-index: 1;
+}
+/* Placeholder también encima del fondo */
+.ce-card-placeholder {
+  position: relative;
+  z-index: 1;
+}
+
+/* ══════════════════════════════════════════
+   MEJORAS HOVER & ANIMACIONES
+══════════════════════════════════════════ */
+.ce-card {
+  will-change: transform;
+}
+.ce-card:hover .ce-card-media img {
+  transform: scale(1.06);
+}
+
+/* Ripple effect en card click */
+.ce-card:active {
+  transform: scale(.98) !important;
+  transition: transform .1s !important;
+}
+
+/* Brand chip en cada card */
+.ce-card-brand {
+  transition: color .2s;
+}
+.ce-card:hover .ce-card-brand {
+  color: var(--cat-accent);
+}
+
+/* Mejor modal backdrop */
+.ce-overlay.open {
+  animation: ce-overlay-in .2s ease forwards;
+}
+@keyframes ce-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.ce-overlay.open .ce-modal {
+  animation: ce-modal-in .25s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes ce-modal-in {
+  from { transform: translateY(16px) scale(.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes ce-modal-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Smooth empty state */
+.ce-empty {
+  animation: ce-fadein .35s ease;
+}
+
+/* Filter chips scroll smooth */
+.ce-filters-wrap {
+  scroll-behavior: smooth;
 }
 
 /* ══════════════════════════════════════════
@@ -637,4 +914,107 @@ html[data-theme="dark"] .ce-spec-v { color: #E2E8F0; }
   content: ' · Specs';
   font-size: .6rem;
   opacity: .6;
+}
+
+/* ══════════════════════════════════════════
+   MOBILE CARD — Optimizado para 2 columnas
+══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .ce-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.09);
+  }
+  .ce-card-media {
+    aspect-ratio: 1;
+  }
+  .ce-card-media img {
+    padding: 10px;
+  }
+  .ce-card-body {
+    padding: 10px 10px 12px;
+  }
+  .ce-card-brand {
+    font-size: .62rem;
+    margin-bottom: 2px;
+  }
+  .ce-card-name {
+    font-size: .8rem;
+    line-height: 1.3;
+    margin-bottom: 4px;
+    /* Clamp to 2 lines on mobile */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .ce-card-desc {
+    font-size: .73rem;
+    /* Hide desc on very small cards — shown in modal */
+    display: none;
+  }
+  .ce-card-footer {
+    padding-top: 8px;
+    margin-top: 6px;
+  }
+  .ce-card-cta {
+    font-size: .72rem;
+    padding: 5px 10px;
+  }
+  .ce-card-avail {
+    font-size: .62rem;
+  }
+  .ce-zoom-chip {
+    font-size: .68rem;
+    padding: 4px 10px;
+  }
+  /* Placeholder icon smaller on mobile */
+  .ce-card-placeholder-icon {
+    width: 44px; height: 44px;
+    font-size: .85rem;
+  }
+  .ce-card-placeholder span {
+    font-size: .68rem;
+    padding: 0 6px;
+  }
+
+  /* Cards: skip entrance animation on mobile (accordion conflicts with IntersectionObserver) */
+  .ce-card {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+  }
+  /* Keep section headers visible too */
+  .ce-section-header {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Search bar: better touch size */
+  .ce-search-input { font-size: .9rem; padding: 13px 0 13px 14px; }
+  .ce-search-box { border-radius: 12px; }
+
+  /* Filter chips: horizontal scroll, better touch */
+  .ce-filters-wrap { padding: 8px 16px; }
+  .ce-chip { padding: 8px 14px; font-size: .75rem; min-height: 38px; }
+
+  /* Section badge compact on mobile */
+  .ce-section-badge {
+    padding: 7px 14px 7px 8px;
+    font-size: .82rem;
+  }
+  .ce-section-icon {
+    width: 26px; height: 26px;
+    font-size: .55rem;
+  }
+  .ce-section-count {
+    font-size: .68rem;
+    letter-spacing: .8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ce-card-body { padding: 8px 8px 10px; }
+  .ce-card-name { font-size: .76rem; }
+  .ce-card-media img { padding: 8px; }
+  .ce-card-placeholder-icon { width: 38px; height: 38px; font-size: .75rem; }
 }

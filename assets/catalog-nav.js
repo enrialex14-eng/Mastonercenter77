@@ -142,8 +142,9 @@
       ' stroke-linecap="round" stroke-linejoin="round">' + path + '</svg>';
   }
 
-  var SVG_HOME  = ico('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>');
-  var SVG_GRID  = ico('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>');
+  var SVG_HOME   = ico('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>');
+  var SVG_GRID   = ico('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>');
+  var SVG_SEARCH = ico('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>');
   var SVG_CHEV  = '<svg class="cdock-chevron" width="13" height="13" viewBox="0 0 24 24"' +
     ' fill="none" stroke="currentColor" stroke-width="2.5"' +
     ' stroke-linecap="round" stroke-linejoin="round">' +
@@ -191,6 +192,10 @@
     dock.innerHTML =
       '<a href="index.html" class="cdock-btn cdock-home" title="Volver al inicio">' +
         SVG_HOME + '<span>Inicio</span>' +
+      '</a>' +
+      '<span class="cdock-sep" aria-hidden="true"></span>' +
+      '<a href="busqueda.html" class="cdock-btn cdock-cats" title="Buscar en todos los catálogos">' +
+        SVG_SEARCH + '<span>Buscar</span>' +
       '</a>' +
       '<span class="cdock-sep" aria-hidden="true"></span>' +
       '<button class="cdock-btn cdock-cats" id="cdock-toggle"' +

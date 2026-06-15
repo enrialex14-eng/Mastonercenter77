@@ -4,7 +4,7 @@
    Modifica aquí y se actualiza en ambas páginas.
 ══════════════════════════════════════════ */
 const SITE = {
-  nombre:    'Mastoner Center 77',
+  nombre:    'mastonercenter77',
   whatsapp:  '584144036573',
   telefono:  '0414-403 6573',
   correo:    '',
@@ -18,5 +18,5 @@ const SITE = {
     linea3: 'Maturín 6201, Estado Monagas, Venezuela'
   },
   horario:   'Lunes a Sábado: 8:00 AM – 6:00 PM',
-  copyright: '© 2026 Mastoner Center 77 · Maturín, Estado Monagas, Venezuela'
+  copyright: '© 2026 mastonercenter77 · Maturín, Estado Monagas, Venezuela'
 };

@@ -54,9 +54,21 @@ const CATALOGOS = [
     descripcion: 'Laptops nuevas, refurbished certificadas y Chromebooks'
   },
   {
+    nombre:      'Gamer',
+    ruta:        'catalogo-gamer.html',
+    estado:      'activo',
+    descripcion: 'CPU, GPU, motherboards, RAM, cases RGB, periféricos gaming y sillas'
+  },
+  {
+    nombre:      'Morrales',
+    ruta:        'catalogo-morrales.html',
+    estado:      'activo',
+    descripcion: 'Fundas para laptop, maletines ejecutivos y morrales escolares/deportivos'
+  },
+  {
     nombre:      'Papelería',
     ruta:        'catalogo-sin-clasificar.html',
     estado:      'activo',
-    descripcion: 'Papelería, librería, morrales escolares y accesorios varios'
+    descripcion: 'Papelería, librería y accesorios varios'
   }
 ];

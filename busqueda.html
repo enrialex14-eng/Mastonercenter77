@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Búsqueda — mastonercenter77</title>
+  <script src="assets/theme.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/shared.css">
+  <script src="assets/site-config.js"></script>
+  <script src="data/catalogos.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:   #0EA5E9;
+      --blue-b: #38BDF8;
+      --blue-l: #7DD3FC;
+      --max-w:  1200px;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-light); color: var(--text-dark); min-height: 100vh; }
+    html { scroll-behavior: smooth; }
+
+    /* ── NAV ── */
+    .gs-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.97); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-base);
+      padding: .9rem 2rem;
+    }
+    html[data-theme="dark"] .gs-nav { background: rgba(15,23,42,.97); border-bottom-color: rgba(56,189,248,.15); }
+    .gs-nav-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .gs-logo {
+      font-family: 'Exo 2', sans-serif; font-weight: 800; font-size: 1.2rem;
+      color: var(--text-dark); text-decoration: none;
+    }
+    .gs-logo span { color: var(--blue); }
+    html[data-theme="dark"] .gs-logo { color: #F1F5F9; }
+    html[data-theme="dark"] .gs-logo span { color: var(--blue-b); }
+    .gs-back {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .85rem; font-weight: 500; color: var(--text-mid);
+      text-decoration: none; transition: color .2s;
+    }
+    .gs-back:hover { color: var(--blue); }
+    .gs-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .theme-toggle-btn {
+      width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border-base);
+      background: var(--bg-section); color: var(--text-mid);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .2s, color .2s;
+    }
+    .theme-toggle-btn:hover { background: var(--border-base); }
+
+    /* ── HERO SEARCH ── */
+    .gs-hero {
+      background: linear-gradient(135deg, #0C2A4A 0%, #0369A1 55%, #0EA5E9 100%);
+      padding: 3.5rem 2rem 3rem;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .gs-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .gs-hero-inner { max-width: 700px; margin: 0 auto; position: relative; z-index: 1; }
+    .gs-hero-label {
+      display: inline-block; font-size: .72rem; font-weight: 700;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(255,255,255,.6); margin-bottom: .8rem;
+    }
+    .gs-hero h1 {
+      font-family: 'Exo 2', sans-serif; font-weight: 900;
+      font-size: clamp(1.8rem, 5vw, 2.8rem); color: #fff;
+      margin-bottom: 1.8rem; line-height: 1.1;
+    }
+    .gs-search-wrap {
+      display: flex; align-items: center; gap: 0;
+      background: rgba(255,255,255,.97); border-radius: 12px;
+      padding: 6px 6px 6px 1.2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,.2);
+    }
+    html[data-theme="dark"] .gs-search-wrap { background: #1E293B; box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+    .gs-search-input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-family: 'Inter', sans-serif; font-size: 1rem; color: var(--text-dark);
+    }
+    html[data-theme="dark"] .gs-search-input { color: #F1F5F9; }
+    .gs-search-input::placeholder { color: #94A3B8; }
+    .gs-search-btn {
+      background: var(--blue); color: #fff; border: none; border-radius: 8px;
+      padding: .7rem 1.4rem; font-family: 'Inter', sans-serif;
+      font-size: .9rem; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; gap: .5rem;
+      transition: background .2s;
+    }
+    .gs-search-btn:hover { background: #0284C7; }
+    .gs-search-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .gs-hint {
+      margin-top: 1rem; font-size: .82rem; color: rgba(255,255,255,.55);
+    }
+
+    /* ── RESULTS SECTION ── */
+    .gs-results-section {
+      max-width: var(--max-w); margin: 0 auto;
+      padding: 2.5rem 2rem 4rem;
+    }
+    .gs-results-header {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: .75rem; margin-bottom: 1.5rem;
+    }
+    .gs-results-count {
+      font-size: .9rem; color: var(--text-mid);
+    }
+    .gs-results-count strong { color: var(--text-dark); font-weight: 600; }
+    html[data-theme="dark"] .gs-results-count strong { color: #F1F5F9; }
+    .gs-clear-btn {
+      font-size: .82rem; color: var(--text-mid); background: none; border: 1px solid var(--border-base);
+      border-radius: 6px; padding: .35rem .9rem; cursor: pointer; transition: border-color .2s, color .2s;
+    }
+    .gs-clear-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ── RESULTS GRID ── */
+    .gs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 1.2rem;
+    }
+    .gs-card {
+      background: #fff; border: 1.5px solid #CBD5E1; border-radius: 14px;
+      overflow: hidden; text-decoration: none; color: inherit;
+      display: flex; flex-direction: column;
+      transition: transform .22s, border-color .22s, box-shadow .22s;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    }
+    html[data-theme="dark"] .gs-card { background: #1E293B; border-color: #334155; box-shadow: none; }
+    .gs-card:hover { transform: translateY(-4px); border-color: rgba(56,189,248,.6); box-shadow: 0 12px 32px rgba(14,165,233,.15); }
+    .gs-card-media {
+      height: 150px; background: #F1F5F9; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    html[data-theme="dark"] .gs-card-media { background: #0F172A; }
+    .gs-card-media img {
+      width: 100%; height: 100%; object-fit: contain; padding: 12px;
+    }
+    .gs-card-placeholder {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; width: 100%;
+    }
+    .gs-card-placeholder-icon {
+      width: 52px; height: 52px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Exo 2', sans-serif; font-size: 1rem; font-weight: 800; color: #fff;
+    }
+    .gs-card-placeholder span { font-size: .72rem; color: #94A3B8; text-align: center; padding: 0 8px; }
+    .gs-card-cat-badge {
+      position: absolute; top: 8px; left: 8px;
+      background: var(--blue); color: #fff;
+      font-size: .62rem; font-weight: 700; letter-spacing: .05em;
+      padding: 3px 8px; border-radius: 20px; text-transform: uppercase;
+    }
+    .gs-card-body { padding: 14px; flex: 1; display: flex; flex-direction: column; }
+    .gs-card-brand { font-size: .72rem; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
+    .gs-card-name { font-size: .88rem; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; line-height: 1.35; }
+    html[data-theme="dark"] .gs-card-name { color: #F1F5F9; }
+    .gs-card-desc { font-size: .78rem; color: var(--text-mid); line-height: 1.5; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .gs-card-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-base);
+    }
+    html[data-theme="dark"] .gs-card-foot { border-top-color: #334155; }
+    .gs-card-ver { font-size: .78rem; font-weight: 600; color: var(--blue); }
+    .gs-card-wa {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #25D366; color: #fff; border: none; border-radius: 6px;
+      padding: 5px 10px; font-size: .73rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: background .2s;
+    }
+    .gs-card-wa:hover { background: #1ebe5d; }
+    .gs-card-wa svg { width: 11px; height: 11px; }
+
+    /* ── EMPTY STATE ── */
+    .gs-empty {
+      text-align: center; padding: 5rem 2rem;
+      max-width: 480px; margin: 0 auto;
+    }
+    .gs-empty-icon {
+      width: 72px; height: 72px; border-radius: 20px;
+      background: var(--bg-section); border: 1.5px solid var(--border-base);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+    html[data-theme="dark"] .gs-empty-icon { background: #1E293B; border-color: #334155; }
+    .gs-empty-icon svg { width: 30px; height: 30px; stroke: #94A3B8; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .gs-empty h2 { font-family: 'Exo 2', sans-serif; font-weight: 800; font-size: 1.4rem; margin-bottom: .6rem; }
+    .gs-empty p { color: var(--text-mid); font-size: .9rem; line-height: 1.65; margin-bottom: 1.5rem; }
+    .gs-empty-contact {
+      background: var(--bg-section); border: 1px solid var(--border-base); border-radius: 14px;
+      padding: 1.4rem; text-align: left; margin-bottom: 1.4rem;
+    }
+    html[data-theme="dark"] .gs-empty-contact { background: #1E293B; border-color: #334155; }
+    .gs-empty-contact h3 { font-family: 'Exo 2', sans-serif; font-weight: 700; font-size: .95rem; margin-bottom: .6rem; }
+    .gs-empty-contact p { font-size: .84rem; color: var(--text-mid); line-height: 1.6; margin: 0; }
+    .gs-wa-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+      width: 100%; background: #25D366; color: #fff; border: none; border-radius: 10px;
+      padding: .85rem 1.5rem; font-family: 'Inter', sans-serif; font-size: .95rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      box-shadow: 0 4px 20px rgba(37,211,102,.3);
+      transition: background .25s, transform .2s;
+    }
+    .gs-wa-btn:hover { background: #1ebe5d; transform: translateY(-2px); }
+    .gs-wa-btn svg { width: 18px; height: 18px; }
+
+    /* ── INITIAL STATE (no search yet) ── */
+    .gs-initial {
+      text-align: center; padding: 5rem 2rem;
+      max-width: 560px; margin: 0 auto;
+    }
+    .gs-initial p { color: var(--text-mid); font-size: .95rem; line-height: 1.7; margin-bottom: 1.5rem; }
+    .gs-cat-pills { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+    .gs-cat-pill {
+      display: inline-flex; align-items: center;
+      padding: .35rem .9rem; border-radius: 50px;
+      background: var(--bg-section); border: 1px solid var(--border-base);
+      font-size: .8rem; font-weight: 500; color: var(--text-mid);
+      text-decoration: none; cursor: pointer;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .gs-cat-pill:hover { background: #E0F2FE; border-color: var(--blue); color: var(--blue); }
+    html[data-theme="dark"] .gs-cat-pill { background: #1E293B; border-color: #334155; color: #94A3B8; }
+    html[data-theme="dark"] .gs-cat-pill:hover { background: rgba(56,189,248,.1); border-color: #38BDF8; color: #38BDF8; }
+
+    /* ── MARK / HIGHLIGHT ── */
+    mark { background: #FEF08A; color: #78350F; border-radius: 2px; padding: 0 2px; }
+    html[data-theme="dark"] mark { background: rgba(251,191,36,.28); color: #FCD34D; }
+
+    /* ── FILTER CHIPS ── */
+    .gs-filter-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.2rem; }
+    .gs-filter-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: .3rem .85rem; border-radius: 50px;
+      border: 1.5px solid var(--border-base); background: transparent;
+      font-family: 'Inter', sans-serif; font-size: .78rem; font-weight: 600;
+      color: var(--text-mid); cursor: pointer;
+      transition: background .18s, color .18s, border-color .18s;
+    }
+    .gs-filter-chip:hover { border-color: var(--blue); color: var(--blue); }
+    .gs-filter-chip--active { background: var(--blue); color: #fff !important; border-color: var(--blue); }
+    .gs-filter-chip--active:hover { background: #0284C7; border-color: #0284C7; }
+    html[data-theme="dark"] .gs-filter-chip { border-color: #334155; color: #94A3B8; }
+    html[data-theme="dark"] .gs-filter-chip:hover { border-color: #38BDF8; color: #38BDF8; }
+    html[data-theme="dark"] .gs-filter-chip--active { background: #0EA5E9; border-color: #0EA5E9; }
+    .gs-fc-cnt { background: rgba(0,0,0,.09); border-radius: 50px; padding: 1px 7px; font-size: .7rem; }
+    .gs-filter-chip--active .gs-fc-cnt { background: rgba(255,255,255,.25); }
+
+    /* ── CONTACT BUTTON ── */
+    .gs-contact-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+      width: 100%; border: 2px solid var(--blue); background: transparent;
+      color: var(--blue); border-radius: 10px;
+      padding: .75rem 1.5rem; font-family: 'Inter', sans-serif;
+      font-size: .9rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; margin-top: .7rem;
+      transition: background .2s, color .2s;
+    }
+    .gs-contact-btn:hover { background: var(--blue); color: #fff; }
+    html[data-theme="dark"] .gs-contact-btn { color: var(--blue-b); border-color: var(--blue-b); }
+    html[data-theme="dark"] .gs-contact-btn:hover { background: var(--blue-b); color: #0F172A; }
+
+    /* ── EMPTY PHONE ── */
+    .gs-empty-phone {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .95rem; font-weight: 600; color: var(--text-dark); margin-bottom: .4rem;
+    }
+    html[data-theme="dark"] .gs-empty-phone { color: #F1F5F9; }
+    .gs-empty-phone svg { stroke: var(--blue); width: 16px; height: 16px; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+    /* ── FOOTER ── */
+    .gs-footer {
+      background: #1E293B; border-top: 1px solid rgba(56,189,248,.12);
+      padding: 1.8rem 2rem; text-align: center;
+    }
+    html[data-theme="dark"] .gs-footer { background: #0F172A; }
+    .gs-footer-logo { font-family: 'Exo 2', sans-serif; font-weight: 800; font-size: 1.1rem; color: #fff; }
+    .gs-footer-logo span { color: var(--blue-b); }
+    .gs-footer p { color: rgba(255,255,255,.4); font-size: .8rem; margin-top: .4rem; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .gs-hero { padding: 2.5rem 1.2rem 2rem; }
+      .gs-results-section { padding: 1.8rem 1.2rem 3rem; }
+      .gs-grid { grid-template-columns: repeat(2, 1fr); gap: .8rem; }
+      .gs-card-media { height: 120px; }
+    }
+    @media (max-width: 380px) {
+      .gs-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="gs-nav">
+  <div class="gs-nav-inner">
+    <a href="index.html" class="gs-logo">mastoner<span>center77</span></a>
+    <a href="index.html" class="gs-back">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Volver al inicio
+    </a>
+    <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Cambiar modo"></button>
+  </div>
+</nav>
+
+<!-- HERO SEARCH -->
+<section class="gs-hero">
+  <div class="gs-hero-inner">
+    <div class="gs-hero-label">Búsqueda global</div>
+    <h1>Encuentra cualquier<br>producto</h1>
+    <div class="gs-search-wrap">
+      <input type="search" id="gs-input" class="gs-search-input"
+        placeholder="Nombre, marca, código, referencia…"
+        autocomplete="off" autocorrect="off" spellcheck="false"
+        aria-label="Buscar en todos los catálogos">
+      <button class="gs-search-btn" onclick="runSearch()">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Buscar
+      </button>
+    </div>
+    <p class="gs-hint" id="gs-hint">Cargando productos…</p>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<div class="gs-results-section">
+  <div id="gs-results-header" class="gs-results-header" style="display:none">
+    <p class="gs-results-count" id="gs-count"></p>
+    <button class="gs-clear-btn" onclick="clearSearch()">Limpiar búsqueda</button>
+  </div>
+
+  <!-- Filter chips por catálogo -->
+  <div class="gs-filter-chips" id="gs-filter-chips" style="display:none"></div>
+
+  <!-- Grid de resultados -->
+  <div class="gs-grid" id="gs-grid" style="display:none"></div>
+
+  <!-- Sin resultados -->
+  <div class="gs-empty" id="gs-empty" style="display:none">
+    <div class="gs-empty-icon">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+    </div>
+    <h2>Sin resultados</h2>
+    <p>Puede que su producto no esté disponible en stock. Puede comunicarse a nuestro número de contacto para que el área de compras le haga solicitud de su producto y le dé costo.</p>
+    <div class="gs-empty-contact">
+      <h3>Contacto directo</h3>
+      <div class="gs-empty-phone">
+        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.36 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.82a16 16 0 0 0 6.06 6.06l.96-.96a2 2 0 0 1 2.11-.45c.907.34 1.85.573 2.81.7A2 2 0 0 1 21.78 16.92z"/></svg>
+        <span id="gs-empty-tel"></span>
+      </div>
+    </div>
+    <a id="gs-wa-btn" href="#" target="_blank" class="gs-wa-btn">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.533 5.845L.057 23.492a.5.5 0 0 0 .614.612l5.716-1.498A11.955 11.955 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.896 0-3.67-.524-5.18-1.434l-.36-.217-3.795.995.991-3.727-.236-.375A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+      Consultar por WhatsApp
+    </a>
+    <a href="index.html#contacto" class="gs-contact-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Contacto rápido
+    </a>
+  </div>
+
+  <!-- Estado inicial (sin búsqueda) -->
+  <div class="gs-initial" id="gs-initial">
+    <p>Escribe el nombre o referencia del producto que buscas. Revisamos las <strong id="gs-total-count">...</strong> referencias de todos los catálogos.</p>
+    <div class="gs-cat-pills" id="gs-cat-pills"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="gs-footer">
+  <div class="gs-footer-logo">mastoner<span>center77</span></div>
+  <p id="gs-footer-copy"></p>
+</footer>
+
+<!-- ═══════════════════════════════════════
+     CARGA DE DATOS (sincrónica — orden garantizado)
+══════════════════════════════════════════ -->
+<script>
+window._allCats = [];
+window._capture = function(nombre, ruta) {
+  if (window.CATALOG_DATA) {
+    var prods = [];
+    (window.CATALOG_DATA.sections || []).forEach(function(sec) {
+      (sec.productos || []).forEach(function(p) {
+        prods.push({
+          codigo:      p.codigo || '',
+          nombre:      p.nombre || '',
+          marca:       p.marca  || '',
+          descripcion: p.descripcion || '',
+          img:         p.img   || '',
+          catNombre:   nombre,
+          catRuta:     ruta
+        });
+      });
+    });
+    window._allCats.push({ nombre: nombre, ruta: ruta, productos: prods });
+    window.CATALOG_DATA = null;
+  }
+};
+</script>
+
+<script src="data/impresoras-data.js"></script>
+<script>_capture('Impresoras', 'catalogo-impresoras.html');</script>
+
+<script src="data/audio-data.js"></script>
+<script>_capture('Audio & Sonido', 'catalogo-audio.html');</script>
+
+<script src="data/camaras-data.js"></script>
+<script>_capture('Cámaras & Redes', 'catalogo-camaras.html');</script>
+
+<script src="data/consumibles-data.js"></script>
+<script>_capture('Consumibles', 'catalogo-consumibles.html');</script>
+
+<script src="data/electronico-data.js"></script>
+<script>_capture('Dispositivos', 'catalogo-electronico.html');</script>
+
+<script src="data/monitores-data.js"></script>
+<script>_capture('Monitores', 'catalogo-monitores.html');</script>
+
+<script src="data/mobiliario-data.js"></script>
+<script>_capture('Mobiliario', 'catalogo-mobiliario.html');</script>
+
+<script src="data/laptops-data.js"></script>
+<script>_capture('Laptops', 'catalogo-laptops.html');</script>
+
+<script src="data/gamer-data.js"></script>
+<script>_capture('Gamer', 'catalogo-gamer.html');</script>
+
+<script src="data/morrales-data.js"></script>
+<script>_capture('Morrales', 'catalogo-morrales.html');</script>
+
+<script src="data/sin-clasificar-data.js"></script>
+<script>_capture('Papelería', 'catalogo-sin-clasificar.html');</script>
+
+<script>
+/* ════════════════════════════════
+   MOTOR DE BÚSQUEDA GLOBAL v2
+════════════════════════════════ */
+(function() {
+  'use strict';
+
+  var _allProducts  = [];
+  var _lastResults  = [];
+  var _lastTerms    = [];
+  var _activeFilter = 'todos';
+  var _debTimer     = null;
+  var WA  = (typeof SITE !== 'undefined') ? SITE.whatsapp : '584144036573';
+  var TEL = (typeof SITE !== 'undefined') ? SITE.telefono : '0414-403 6573';
+
+  var WA_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:11px;height:11px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.533 5.845L.057 23.492a.5.5 0 0 0 .614.612l5.716-1.498A11.955 11.955 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.896 0-3.67-.524-5.18-1.434l-.36-.217-3.795.995.991-3.727-.236-.375A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>';
+
+  /* ── Accumulate products ── */
+  (window._allCats || []).forEach(function(cat) {
+    cat.productos.forEach(function(p) { _allProducts.push(p); });
+  });
+
+  var totalCount = _allProducts.length;
+
+  /* ── Init UI ── */
+  var hint = document.getElementById('gs-hint');
+  if (hint) hint.textContent = totalCount + ' productos en ' + (window._allCats || []).length + ' catálogos';
+  var tc = document.getElementById('gs-total-count');
+  if (tc) tc.textContent = totalCount;
+  var copy = document.getElementById('gs-footer-copy');
+  if (copy && typeof SITE !== 'undefined') copy.textContent = SITE.copyright;
+  var telEl = document.getElementById('gs-empty-tel');
+  if (telEl) telEl.textContent = TEL;
+
+  var pillsEl = document.getElementById('gs-cat-pills');
+  if (pillsEl) {
+    pillsEl.innerHTML = (window._allCats || []).map(function(cat) {
+      return '<a href="' + cat.ruta + '" class="gs-cat-pill">' + cat.nombre + '</a>';
+    }).join('');
+  }
+
+  /* ── Helpers ── */
+  function abbr(marca) {
+    if (!marca) return '?';
+    var w = marca.trim().split(/\s+/);
+    return w.length === 1 ? w[0].substring(0, 3).toUpperCase() : (w[0][0] + w[1][0]).toUpperCase();
+  }
+
+  var BRAND_BG = {
+    'Trust': '#E06C00', 'Marvo': '#7C3AED', 'Moonki': '#0EA5E9',
+    'HP': '#0096D6', 'Canon': '#CC0000', 'Epson': '#003087',
+    'Lenovo': '#E2231A', 'Asus': '#00539C', 'MSI': '#CC0000',
+    'Samsung': '#1428A0', 'LG': '#A50034', 'default': '#64748B'
+  };
+  function brandColor(marca) {
+    if (!marca) return BRAND_BG.default;
+    for (var k in BRAND_BG) {
+      if (k !== 'default' && marca.toLowerCase().indexOf(k.toLowerCase()) !== -1) return BRAND_BG[k];
+    }
+    return BRAND_BG.default;
+  }
+
+  /* ── Highlight matched text with <mark> ── */
+  function hl(text, terms) {
+    if (!text) return '';
+    var out = text;
+    terms.forEach(function(term) {
+      if (!term || term.length < 2) return;
+      var re = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+      out = out.replace(re, '<mark>$1</mark>');
+    });
+    return out;
+  }
+
+  /* ── Score a product (higher = better match) ── */
+  function scoreProduct(p, terms) {
+    var score = 0;
+    terms.forEach(function(term) {
+      if (!term) return;
+      var code  = (p.codigo      || '').toLowerCase();
+      var name  = (p.nombre      || '').toLowerCase();
+      var brand = (p.marca       || '').toLowerCase();
+      var desc  = (p.descripcion || '').toLowerCase();
+      var cat   = (p.catNombre   || '').toLowerCase();
+
+      if (code  === term)                score += 200;
+      else if (code.indexOf(term)  === 0) score += 80;
+      else if (code.indexOf(term)  !== -1) score += 40;
+
+      if (name  === term)                score += 100;
+      else if (name.indexOf(term)  === 0) score += 60;
+      else if (name.indexOf(term)  !== -1) score += 30;
+
+      if (brand === term)                score += 70;
+      else if (brand.indexOf(term) === 0) score += 40;
+      else if (brand.indexOf(term) !== -1) score += 20;
+
+      if (desc.indexOf(term) !== -1) score += 8;
+      if (cat.indexOf(term)  !== -1) score += 5;
+    });
+    return score;
+  }
+
+  /* ── Render a single result card ── */
+  function renderCard(p, terms) {
+    terms = terms || [];
+    var color = brandColor(p.marca);
+    var ab    = abbr(p.marca);
+    var imgHtml = p.img
+      ? '<img src="' + p.img + '" alt="' + (p.nombre || '').replace(/"/g, '&quot;') + '" loading="lazy"' +
+        ' onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+        '<div class="gs-card-placeholder" style="display:none">' +
+          '<div class="gs-card-placeholder-icon" style="background:' + color + '">' + ab + '</div>' +
+        '</div>'
+      : '<div class="gs-card-placeholder">' +
+          '<div class="gs-card-placeholder-icon" style="background:' + color + '">' + ab + '</div>' +
+        '</div>';
+
+    var waText = encodeURIComponent(
+      '¡Hola! Me gustaría consultar precio y disponibilidad del producto: ' +
+      (p.marca || '') + ' ' + (p.nombre || '') +
+      (p.codigo ? ' (Código: ' + p.codigo + ')' : '') + '. ¡Gracias!'
+    );
+    var detailHref = p.codigo
+      ? p.catRuta + '?highlight=' + encodeURIComponent(p.codigo)
+      : p.catRuta;
+
+    var dispName  = terms.length ? hl(p.nombre      || '', terms) : (p.nombre      || '');
+    var dispBrand = terms.length ? hl(p.marca        || '', terms) : (p.marca        || '');
+    var dispDesc  = terms.length ? hl(p.descripcion  || '', terms) : (p.descripcion  || '');
+
+    return '<a href="' + detailHref + '" class="gs-card">' +
+      '<div class="gs-card-media">' +
+        imgHtml +
+        '<span class="gs-card-cat-badge">' + p.catNombre + '</span>' +
+      '</div>' +
+      '<div class="gs-card-body">' +
+        '<div class="gs-card-brand">' + dispBrand + '</div>' +
+        '<div class="gs-card-name">'  + dispName  + '</div>' +
+        '<div class="gs-card-desc">'  + dispDesc  + '</div>' +
+        '<div class="gs-card-foot">' +
+          '<span class="gs-card-ver">Ver en catálogo →</span>' +
+          '<a href="https://wa.me/' + WA + '?text=' + waText + '" target="_blank" class="gs-card-wa" onclick="event.stopPropagation()">' +
+            WA_SVG + 'WA' +
+          '</a>' +
+        '</div>' +
+      '</div>' +
+    '</a>';
+  }
+
+  /* ── Build filter chips HTML ── */
+  function buildChips(results, active) {
+    var counts = {};
+    results.forEach(function(p) { counts[p.catNombre] = (counts[p.catNombre] || 0) + 1; });
+    var cats = Object.keys(counts).sort(function(a, b) { return counts[b] - counts[a]; });
+    if (cats.length <= 1) return '';
+
+    var html = '<button class="gs-filter-chip' + (active === 'todos' ? ' gs-filter-chip--active' : '') +
+      '" data-cat="todos" onclick="filterResults(\'todos\')">Todos ' +
+      '<span class="gs-fc-cnt">' + results.length + '</span></button>';
+
+    cats.forEach(function(cat) {
+      var safe = cat.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      html += '<button class="gs-filter-chip' + (active === cat ? ' gs-filter-chip--active' : '') +
+        '" data-cat="' + cat + '" onclick="filterResults(\'' + safe + '\')">' +
+        cat + ' <span class="gs-fc-cnt">' + counts[cat] + '</span></button>';
+    });
+    return html;
+  }
+
+  /* ── Apply catalog filter to existing results ── */
+  window.filterResults = function(cat) {
+    _activeFilter = cat;
+    var chipsEl = document.getElementById('gs-filter-chips');
+    if (chipsEl) chipsEl.innerHTML = buildChips(_lastResults, cat);
+
+    var toShow = cat === 'todos'
+      ? _lastResults
+      : _lastResults.filter(function(p) { return p.catNombre === cat; });
+
+    var rawQ  = document.getElementById('gs-input').value.trim();
+    var grid  = document.getElementById('gs-grid');
+    var count = document.getElementById('gs-count');
+    grid.innerHTML = toShow.map(function(p) { return renderCard(p, _lastTerms); }).join('');
+    var label = cat === 'todos' ? '' : ' en <strong>' + cat + '</strong>';
+    if (count) count.innerHTML = '<strong>' + toShow.length + '</strong> resultado' +
+      (toShow.length !== 1 ? 's' : '') + ' para "' + rawQ + '"' + label;
+  };
+
+  /* ── Core search ── */
+  window.runSearch = function() {
+    var rawQ = (document.getElementById('gs-input').value || '').trim();
+    var q    = rawQ.toLowerCase();
+    var grid    = document.getElementById('gs-grid');
+    var empty   = document.getElementById('gs-empty');
+    var initial = document.getElementById('gs-initial');
+    var header  = document.getElementById('gs-results-header');
+    var chips   = document.getElementById('gs-filter-chips');
+    var count   = document.getElementById('gs-count');
+
+    if (!q) {
+      grid.style.display = 'none';
+      empty.style.display = 'none';
+      header.style.display = 'none';
+      if (chips) chips.style.display = 'none';
+      initial.style.display = '';
+      return;
+    }
+
+    initial.style.display = 'none';
+    _activeFilter = 'todos';
+
+    /* Multi-word: all terms must match somewhere */
+    var terms = q.split(/\s+/).filter(function(t) { return t.length >= 1; });
+    _lastTerms = terms;
+
+    var matched = _allProducts.filter(function(p) {
+      var hay = [p.nombre, p.marca, p.descripcion, p.codigo, p.catNombre].join(' ').toLowerCase();
+      return terms.every(function(t) { return hay.indexOf(t) !== -1; });
+    });
+
+    /* Sort by score descending */
+    _lastResults = matched.map(function(p) {
+      return { p: p, s: scoreProduct(p, terms) };
+    }).sort(function(a, b) { return b.s - a.s; }).map(function(x) { return x.p; });
+
+    header.style.display = 'flex';
+
+    if (_lastResults.length === 0) {
+      grid.style.display = 'none';
+      grid.innerHTML = '';
+      if (chips) chips.style.display = 'none';
+      empty.style.display = '';
+      var waBtn = document.getElementById('gs-wa-btn');
+      if (waBtn) {
+        var waTxt = '¡Hola! Busco el producto: ' + rawQ + '. ¿Lo tienen disponible o pueden conseguirlo?';
+        waBtn.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(waTxt);
+      }
+      if (count) count.innerHTML = 'Sin resultados para <strong>"' + rawQ + '"</strong>';
+    } else {
+      empty.style.display = 'none';
+      grid.style.display = '';
+      grid.innerHTML = _lastResults.map(function(p) { return renderCard(p, _lastTerms); }).join('');
+      if (count) count.innerHTML = '<strong>' + _lastResults.length + '</strong> resultado' +
+        (_lastResults.length !== 1 ? 's' : '') + ' para "' + rawQ + '"';
+
+      var chipsHtml = buildChips(_lastResults, 'todos');
+      if (chips) {
+        chips.innerHTML = chipsHtml;
+        chips.style.display = chipsHtml ? '' : 'none';
+      }
+    }
+  };
+
+  window.clearSearch = function() {
+    var input = document.getElementById('gs-input');
+    if (input) input.value = '';
+    _lastResults  = [];
+    _lastTerms    = [];
+    _activeFilter = 'todos';
+    document.getElementById('gs-grid').style.display = 'none';
+    document.getElementById('gs-grid').innerHTML = '';
+    document.getElementById('gs-empty').style.display = 'none';
+    document.getElementById('gs-results-header').style.display = 'none';
+    var chips = document.getElementById('gs-filter-chips');
+    if (chips) chips.style.display = 'none';
+    document.getElementById('gs-initial').style.display = '';
+    if (input) input.focus();
+  };
+
+  /* ── Input listeners with 250ms debounce ── */
+  var input = document.getElementById('gs-input');
+  if (input) {
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { clearTimeout(_debTimer); runSearch(); }
+    });
+    input.addEventListener('input', function() {
+      var q = this.value.trim();
+      clearTimeout(_debTimer);
+      if (q.length === 0) { clearSearch(); return; }
+      if (q.length >= 2) { _debTimer = setTimeout(runSearch, 250); }
+    });
+  }
+
+  /* ── Auto-search from URL ?q= ── */
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var urlQ = params.get('q');
+    if (urlQ) {
+      var inp = document.getElementById('gs-input');
+      if (inp) { inp.value = urlQ; runSearch(); inp.focus(); }
+    }
+  } catch(e) {}
+
+})();
+</script>
+
+</body>
+</html>

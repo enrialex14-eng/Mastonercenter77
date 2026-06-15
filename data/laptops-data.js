@@ -1,5 +1,5 @@
-/* ══════════════════════════════════════════
-   CATÁLOGO DE LAPTOPS — Mastoner Center 77
+﻿/* ══════════════════════════════════════════
+   CATÁLOGO DE LAPTOPS — mastonercenter77
    Productos extraídos del Listado de Productos
    Solo laptops: nuevas, refurbished y chromebooks
 ══════════════════════════════════════════ */
@@ -7,7 +7,7 @@ window.CATALOG_DATA = {
   id: 'laptops',
   nombre: 'Laptops',
   eyebrow: 'Catálogo Oficial 2025',
-  descripcion: 'Laptops nuevas, refurbished certificadas y Chromebooks. Dell, HP, ASUS, Acer, Lenovo y más.',
+  descripcion: 'Laptops nuevas, refurbished certificadas y Chromebooks. Dell, HP, ASUS, Acer, Lenovo y más. Ver fundas en catálogo Morrales.',
   gradientFrom: '#0F172A',
   gradientMid:  '#1E3A5F',
   gradientTo:   '#2563EB',
@@ -272,12 +272,10 @@ window.CATALOG_DATA = {
       ]
     },
 
-    /* ═══════════════════════════════
-       FUNDAS & MALETINES
-    ═══════════════════════════════ */
+    /* Fundas & Maletines → ver catalogo-morrales.html */
     {
-      id: 'fundas',
-      nombre: 'Fundas & Maletines para Laptop',
+      id: 'fundas-ref',
+      nombre: 'Fundas & Maletines (ver catálogo Morrales)',
       productos: [
         { codigo:'002545',        nombre:'Funda Protectora Portátil 15.6" Negro 21248',  marca:'Trust',    descripcion:'Funda protectora para portátil 15.6". Color negro. Ref. 21248.', img:'https://d1gb7gicmr8iau.cloudfront.net/fit-in/1200x900/Media/Images/Product/Visual/21248_pictures_product_visual_1.png' },
         { codigo:'KNS-120BK',     nombre:'Funda Laptop Neoactive 15.6" Black',           marca:'Klip Xtreme',descripcion:'Funda para laptop 15.6" color negro. Material neopreno resistente al agua.', img:'' },
